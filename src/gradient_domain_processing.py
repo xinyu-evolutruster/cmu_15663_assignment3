@@ -148,18 +148,18 @@ def main():
     img = skimage.io.imread(img_path)[:, :, :3] / 255
     flash_img = skimage.io.imread(flash_img_path)[:, :, :3] / 255
 
-    self_img_path = '../data/self/cha_book.jpg'
-    self_flash_img_path = '../data/self/cha_book_flash.jpg'
-    self_img = skimage.io.imread(self_img_path)[:, :, :3] / 255
-    self_flash_img = skimage.io.imread(self_flash_img_path)[:, :, :3] / 255
+    # self_img_path = '../data/self/cha_book.jpg'
+    # self_flash_img_path = '../data/self/cha_book_flash.jpg'
+    # self_img = skimage.io.imread(self_img_path)[:, :, :3] / 255
+    # self_flash_img = skimage.io.imread(self_flash_img_path)[:, :, :3] / 255
 
-    self_img = skimage.transform.resize(
-        self_img, (self_img.shape[0] // 8, self_img.shape[1] // 8),
-        anti_aliasing=True)
-    self_flash_img = skimage.transform.resize(
-        self_flash_img, (self_flash_img.shape[0] // 8, self_flash_img.shape[1] // 8), anti_aliasing=True)
-    self_img = self_img.astype(np.float32)
-    self_flash_img = self_flash_img.astype(np.float32)
+    # self_img = skimage.transform.resize(
+    #     self_img, (self_img.shape[0] // 8, self_img.shape[1] // 8),
+    #     anti_aliasing=True)
+    # self_flash_img = skimage.transform.resize(
+    #     self_flash_img, (self_flash_img.shape[0] // 8, self_flash_img.shape[1] // 8), anti_aliasing=True)
+    # self_img = self_img.astype(np.float32)
+    # self_flash_img = self_flash_img.astype(np.float32)
 
     # Differentiate and then re-integrate an image
     integrated_img, grad_x_img, grad_y_img = differentiate_reintegrate(
@@ -177,6 +177,19 @@ def main():
     plt.show()
     # plt.savefig('./fused_integrated.png', dpi=200,
     #             bbox_inches='tight', pad_inches=0)
+
+    # integrated_img, grad_x_img, grad_y_img = differentiate_reintegrate(
+    #     self_flash_img)
+    # plt.imshow(integrated_img)
+    # plt.axis('off')
+    # plt.show()
+
+    # integrated_img = fuse_gradient_field(self_img, self_flash_img, sigma=20, tau_s=0.5)
+    # integrated_img = np.clip(integrated_img * 1.1, a_min=0, a_max=1)
+
+    # plt.imshow(integrated_img)
+    # plt.axis('off')
+    # plt.show()
 
 
 if __name__ == '__main__':
