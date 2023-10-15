@@ -77,10 +77,16 @@ def gradient_integration(grad_x, grad_y, boundary_mask, I_boundary, N=10000, eps
 def differentiate_reintegrate(img):
     integrated_img = np.zeros_like(img).astype(np.float32)
     h, w = integrated_img.shape[:2]
+
+    grad_x_img = np.zeros_like(img)
+    grad_y_img = np.zeros_like(img)
+
     for c in range(0, 3):
         img_c = img[:, :, c]
         grad_x = gradient_x(img_c)
         grad_y = gradient_y(img_c)
+        grad_x_img[:, :, c] = grad_x
+        grad_y_img[:, :, c] = grad_y
 
         boundary_mask = create_boundary_mask(h, w)
         I_boundary = create_boundary_img(img_c, boundary_mask)
@@ -88,7 +94,7 @@ def differentiate_reintegrate(img):
         integrated_img[:, :, c] = gradient_integration(
             grad_x, grad_y, boundary_mask, I_boundary)
 
-    return integrated_img
+    return integrated_img, grad_x_img, grad_y_img
 
 
 def fuse_gradient_field(amb_img, flash_img, sigma=40, tau_s=0.9):
@@ -142,8 +148,6 @@ def main():
     img = skimage.io.imread(img_path)[:, :, :3] / 255
     flash_img = skimage.io.imread(flash_img_path)[:, :, :3] / 255
 
-    print("img shape: ", img.shape)
-
     self_img_path = '../data/self/cha_book.jpg'
     self_flash_img_path = '../data/self/cha_book_flash.jpg'
     self_img = skimage.io.imread(self_img_path)[:, :, :3] / 255
@@ -157,33 +161,22 @@ def main():
     self_img = self_img.astype(np.float32)
     self_flash_img = self_flash_img.astype(np.float32)
 
-    # integrated_img = differentiate_reintegrate(img)
+    # Differentiate and then re-integrate an image
+    integrated_img, grad_x_img, grad_y_img = differentiate_reintegrate(
+        flash_img)
+    plt.imshow(integrated_img)
+    plt.axis('off')
+    plt.show()
 
-    # integrated_img = fuse_gradient_field(img, flash_img, sigma=40, tau_s=0.55)
-    # print(integrated_img.max())
-    # print(integrated_img.min())
-    # integrated_img = np.clip(integrated_img * 1.1, a_min=0, a_max=1)
+    # Create the fused gradient field
+    integrated_img = fuse_gradient_field(img, flash_img, sigma=20, tau_s=0.5)
+    integrated_img = np.clip(integrated_img * 1.1, a_min=0, a_max=1)
 
-    # plt.imshow(integrated_img)
-    # plt.axis('off')
+    plt.imshow(integrated_img)
+    plt.axis('off')
+    plt.show()
     # plt.savefig('./fused_integrated.png', dpi=200,
     #             bbox_inches='tight', pad_inches=0)
-
-    tau_s = [0.3]
-    sigmas = [10, 20, 40, 80]
-    for tau in tau_s:
-        for sigma in sigmas:
-            integrated_img = fuse_gradient_field(
-                img, flash_img, sigma=sigma, tau_s=tau)
-            print(integrated_img.max())
-            print(integrated_img.min())
-            integrated_img = np.clip(integrated_img * 1.1, a_min=0, a_max=1)
-
-            plt.imshow(integrated_img)
-            plt.axis('off')
-            # plt.show()
-            plt.savefig('./integrated_{}_{}.png'.format(tau, sigma), dpi=200,
-                        bbox_inches='tight', pad_inches=0)
 
 
 if __name__ == '__main__':

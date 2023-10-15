@@ -140,70 +140,65 @@ def main():
     flash_img = skimage.transform.resize(
         flash_img, (flash_img.shape[0] // 2, flash_img.shape[1] // 2), anti_aliasing=True)
 
-    self_img_path = '../data/self/kingohger.jpg'
-    flash_self_img_path = '../data/self/kingohger_flash.jpg'
-    self_img = skimage.io.imread(self_img_path)
-    flash_self_img = skimage.io.imread(flash_self_img_path)
-    self_img = skimage.transform.resize(
-        self_img, (self_img.shape[0] // 2, self_img.shape[1] // 2),
-        anti_aliasing=True)
-    flash_self_img = skimage.transform.resize(
-        flash_self_img, (flash_self_img.shape[0] // 2, flash_self_img.shape[1] // 2), anti_aliasing=True)
+    # self image
+    # self_img_path = '../data/self/kingohger.jpg'
+    # flash_self_img_path = '../data/self/kingohger_flash.jpg'
+    # self_img = skimage.io.imread(self_img_path)
+    # flash_self_img = skimage.io.imread(flash_self_img_path)
+    # self_img = skimage.transform.resize(
+    #     self_img, (self_img.shape[0] // 2, self_img.shape[1] // 2),
+    #     anti_aliasing=True)
+    # flash_self_img = skimage.transform.resize(
+    #     flash_self_img, (flash_self_img.shape[0] // 2, flash_self_img.shape[1] // 2), anti_aliasing=True)
 
-    # # normalize to 0-1
-    # img = ((img - img.min()) / (img.max() - img.min())).astype(np.float32)
-    # flash_img = ((flash_img - flash_img.min()) / (flash_img.max() -
-    #              flash_img.min())).astype(np.float32)
+    # normalize to 0-1
+    img = ((img - img.min()) / (img.max() - img.min())).astype(np.float32)
+    flash_img = ((flash_img - flash_img.min()) / (flash_img.max() -
+                 flash_img.min())).astype(np.float32)
 
     # Lamp image
-
     # bilateral filtering
-    # A_base = bilateral_filter(
-    #     img, img, kernel_size=5, sigma_r=0.05)
-
-    # plt.imshow(A_base)
-    # plt.axis('off')
-    # plt.savefig('./A_base.png', dpi=400, bbox_inches='tight', pad_inches=0)
+    A_base = bilateral_filter(img, img, kernel_size=5, sigma_r=0.05)
+    plt.imshow(A_base)
+    plt.axis('off')
+    plt.show()
 
     # joint bilateral filtering
-    # A_NR = bilateral_filter(
-    #     img, flash_img, kernel_size=5, sigma_r=0.05)
+    A_NR = bilateral_filter(
+        img, flash_img, kernel_size=3, sigma_r=0.02)
 
-    # plt.imshow(filtered_img)
-    # plt.axis('off')
+    plt.imshow(A_NR)
+    plt.axis('off')
+    plt.show()
     # plt.savefig('./A_joint.png', dpi=400, bbox_inches='tight', pad_inches=0)
 
     # detail transfer
-    # A_detail = detail_transfer(img, flash_img, sigma_r=0.05)
+    A_detail = detail_transfer(img, flash_img, sigma_r=0.05)
 
-    # plt.imshow(A_detail)
-    # plt.axis('off')
+    plt.imshow(A_detail)
+    plt.axis('off')
+    plt.show()
     # plt.savefig('./A_detail.png', dpi=400, bbox_inches='tight', pad_inches=0)
 
-    mask = specularity_masking(self_img, flash_self_img)
+    mask = specularity_masking(img, flash_img)
 
     plt.imshow(mask)
     plt.axis('off')
-    plt.savefig('./self_mask.png', dpi=200, bbox_inches='tight', pad_inches=0)
+    plt.show()
+    # plt.savefig('./self_mask.png', dpi=200, bbox_inches='tight', pad_inches=0)
 
     mask = np.repeat(mask[..., np.newaxis], 3, axis=2)
 
-    # final_img = (1 - mask) * A_detail + mask * A_base
+    final_img = (1 - mask) * A_detail + mask * A_base
 
-    # plt.imshow(final_img)
-    # plt.axis('off')
+    plt.imshow(final_img)
+    plt.axis('off')
+    plt.show()
     # plt.savefig('./final_img.png', dpi=400, bbox_inches='tight', pad_inches=0)
-
-    # test the result
-    # filtered_img = cv2.bilateralFilter(img, 9, 30, 75)
-    # plt.imshow(filtered_img)
-    # plt.axis('off')
-    # plt.savefig('./opencv.png', bbox_inches='tight', pad_inches=0)
 
     # plt.imshow(self_img)
     # plt.axis('off')
-    # plt.savefig('./self_img_orig.png', dpi=400,
-    #             bbox_inches='tight', pad_inches=0)
+    # plt.show()
 
     # # bilateral filtering
     # A_base = bilateral_filter(
@@ -222,9 +217,7 @@ def main():
 
     # plt.imshow(final_img)
     # plt.axis('off')
-    # # plt.show()
-    # plt.savefig('./self_final_img.png', dpi=400,
-    #             bbox_inches='tight', pad_inches=0)
+    # plt.show()
 
 
 if __name__ == '__main__':
